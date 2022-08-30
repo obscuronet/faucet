@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/obscuronet/go-obscuro/go/obsclient"
 	"github.com/obscuronet/go-obscuro/go/rpcclientlib"
 	"github.com/obscuronet/go-obscuro/go/wallet"
@@ -38,7 +39,7 @@ func (f *Faucet) Fund(address *common.Address) error {
 		GasPrice: big.NewInt(225),
 		Gas:      gas,
 		To:       address,
-		Value:    big.NewInt(1_000_000_000),
+		Value:    new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether)),
 	}
 
 	signedTx, err := f.wallet.SignTransaction(tx)
