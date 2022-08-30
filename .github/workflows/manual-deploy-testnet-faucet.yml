@@ -50,8 +50,7 @@ jobs:
           location: 'uksouth'
           restart-policy: 'Never'
           environment-variables: PORT=80
-          secure-environment-variables: FAUCET_PK=${{ secrets.FAUCET_PK }}
-          command-line: cmd/faucet --pk $FAUCET_PK
+          command-line: cmd/faucet --pk ${{ secrets.FAUCET_PK }}
           ports: '80'
           cpu: 2
           memory: 4
