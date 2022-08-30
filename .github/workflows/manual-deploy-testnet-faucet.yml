@@ -49,7 +49,7 @@ jobs:
           name: testnet-faucet
           location: 'uksouth'
           restart-policy: 'Never'
-          command-line: PORT=80 cmd/faucet --pk 0x8dfb8083da6275ae3e4f41e3e8a8c19d028d32c9247e24530933782f2a05035b
+          command-line: tail -f /dev/null #PORT=80 cmd/faucet --pk 0x8dfb8083da6275ae3e4f41e3e8a8c19d028d32c9247e24530933782f2a05035b
           ports: '80'
           cpu: 2
           memory: 4
