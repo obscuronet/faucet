@@ -19,8 +19,28 @@ type requestAddr struct {
 func NewWebServer(faucet *Faucet) *WebServer {
 	r := gin.Default()
 
-	r.POST("/fundNativeObx", func(c *gin.Context) {
-		// Parse JSON
+	r.POST("/fund/:token", func(c *gin.Context) {
+		tokenReq := c.Params.ByName("token")
+		token := ""
+
+		// check the token request type
+		switch tokenReq {
+		case OBXNativeToken:
+			token = OBXNativeToken
+		case WrappedOBX:
+			token = WrappedOBX
+		case WrappedEth:
+			token = WrappedEth
+		case WrappedUSDC:
+			token = WrappedUSDC
+		default:
+			err := fmt.Errorf("token not recognized: %s", tokenReq)
+			c.Error(err)
+			fmt.Println(err)
+			return
+		}
+
+		// make sure there's an address
 		var req requestAddr
 		if err := c.Bind(&req); err != nil {
 			err = fmt.Errorf("unable to parse request: %w", err)
@@ -29,6 +49,7 @@ func NewWebServer(faucet *Faucet) *WebServer {
 			return
 		}
 
+		// make sure the address is valid
 		if !common.IsHexAddress(req.Address) {
 			err := fmt.Errorf("unexpected address %s", req.Address)
 			c.Error(err)
@@ -36,8 +57,9 @@ func NewWebServer(faucet *Faucet) *WebServer {
 			return
 		}
 
+		// fund the address
 		addr := common.HexToAddress(req.Address)
-		if err := faucet.Fund(&addr); err != nil {
+		if err := faucet.Fund(&addr, token); err != nil {
 			err = fmt.Errorf("unable to fund request %w", err)
 			c.Error(err)
 			fmt.Println(err)

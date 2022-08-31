@@ -18,7 +18,15 @@ import (
 	"math/big"
 )
 
-const _timeout = 30 * time.Second
+const (
+	_timeout       = 30 * time.Second
+	OBXNativeToken = "obx"
+	WrappedOBX     = "wobx"
+	WrappedEth     = "weth"
+	WrappedUSDC    = "usdc"
+)
+
+type TokenType string
 
 type Faucet struct {
 	client    *obsclient.AuthObsClient
@@ -27,35 +35,40 @@ type Faucet struct {
 	wallet    wallet.Wallet
 }
 
-func (f *Faucet) Fund(address *common.Address) error {
-	// the faucet should be the only user of the faucet pk
-
-	// todo remove hardcoded gas values
-	gas := uint64(21000)
-
-	f.fundMutex.Lock()
-	tx := &types.LegacyTx{
-		Nonce:    f.nonce,
-		GasPrice: big.NewInt(225),
-		Gas:      gas,
-		To:       address,
-		Value:    new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether)),
-	}
-
-	signedTx, err := f.wallet.SignTransaction(tx)
+func NewFaucet(rpcUrl string, chainID *big.Int, pk *ecdsa.PrivateKey) (*Faucet, error) {
+	w := wallet.NewInMemoryWalletFromPK(chainID, pk)
+	obsClient, err := obsclient.DialWithAuth(rpcUrl, w)
 	if err != nil {
-		f.fundMutex.Unlock()
+		return nil, fmt.Errorf("unable to connect with the node: %w", err)
+	}
+
+	nonce, err := obsClient.NonceAt(context.Background(), w.Address(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch %s nonce: %w", w.Address(), err)
+	}
+	return &Faucet{
+		client: obsClient,
+		wallet: w,
+		nonce:  nonce,
+	}, nil
+}
+
+func (f *Faucet) Fund(address *common.Address, token string) error {
+	var err error
+	var signedTx *types.Transaction
+
+	if token == OBXNativeToken {
+		signedTx, err = f.fundNativeToken(address)
+	} else {
+		//signedTx, err = f.fundERC20Token(address, token)
+		// todo implement this when contracts are deployable somewhere
+	}
+	if err != nil {
 		return err
 	}
 
-	if err := f.client.SendTransaction(context.Background(), signedTx); err != nil {
-		f.fundMutex.Unlock()
-		return err
-	}
-	f.nonce++
-	f.fundMutex.Unlock()
-
-	txMarshal, err := json.Marshal(tx)
+	// the faucet should be the only user of the faucet pk
+	txMarshal, err := json.Marshal(signedTx)
 	if err != nil {
 		return err
 	}
@@ -94,20 +107,30 @@ func (f *Faucet) validateTx(tx *types.Transaction) error {
 	return fmt.Errorf("unable to fetch tx receipt after %s", _timeout)
 }
 
-func NewFaucet(rpcUrl string, chainID *big.Int, pk *ecdsa.PrivateKey) (*Faucet, error) {
-	w := wallet.NewInMemoryWalletFromPK(chainID, pk)
-	obsClient, err := obsclient.DialWithAuth(rpcUrl, w)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect with the node: %w", err)
+func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, error) {
+	// todo remove hardcoded gas values
+	gas := uint64(21000)
+
+	f.fundMutex.Lock()
+	tx := &types.LegacyTx{
+		Nonce:    f.nonce,
+		GasPrice: big.NewInt(225),
+		Gas:      gas,
+		To:       address,
+		Value:    new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether)),
 	}
 
-	nonce, err := obsClient.NonceAt(context.Background(), w.Address(), nil)
+	signedTx, err := f.wallet.SignTransaction(tx)
 	if err != nil {
-		return nil, fmt.Errorf("unable to fetch %s nonce: %w", w.Address(), err)
+		f.fundMutex.Unlock()
+		return nil, err
 	}
-	return &Faucet{
-		client: obsClient,
-		wallet: w,
-		nonce:  nonce,
-	}, nil
+
+	if err := f.client.SendTransaction(context.Background(), signedTx); err != nil {
+		f.fundMutex.Unlock()
+		return signedTx, err
+	}
+	f.nonce++
+	f.fundMutex.Unlock()
+	return signedTx, nil
 }
