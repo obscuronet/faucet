@@ -18,7 +18,7 @@ const (
 
 	nodeWSPortName    = "nodePort"
 	nodeWSPortDefault = 13000
-	nodeWSPortUsage   = "The port on which to connect to the Obscuro node via RPC over HTTP. Default: 13000."
+	nodeWSPortUsage   = "The port on which to connect to the Obscuro node via RPC over HTTP. Default: 13000 ."
 
 	faucetPKName    = "pk"
 	faucetPKDefault = ""
