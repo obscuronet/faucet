@@ -117,7 +117,7 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 		GasPrice: big.NewInt(225),
 		Gas:      gas,
 		To:       address,
-		Value:    new(big.Int).Mul(big.NewInt(10), big.NewInt(params.Ether)),
+		Value:    new(big.Int).Mul(big.NewInt(100_000), big.NewInt(params.Ether)),
 	}
 
 	signedTx, err := f.wallet.SignTransaction(tx)
