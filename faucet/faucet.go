@@ -31,7 +31,6 @@ type TokenType string
 type Faucet struct {
 	client    *obsclient.AuthObsClient
 	fundMutex sync.Mutex
-	nonce     uint64
 	wallet    wallet.Wallet
 }
 
@@ -42,14 +41,9 @@ func NewFaucet(rpcUrl string, chainID *big.Int, pk *ecdsa.PrivateKey) (*Faucet, 
 		return nil, fmt.Errorf("unable to connect with the node: %w", err)
 	}
 
-	nonce, err := obsClient.NonceAt(context.Background(), w.Address(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("unable to fetch %s nonce: %w", w.Address(), err)
-	}
 	return &Faucet{
 		client: obsClient,
 		wallet: w,
-		nonce:  nonce,
 	}, nil
 }
 
@@ -117,12 +111,14 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch %s nonce: %w", f.wallet.Address(), err)
 	}
+	// this isn't great as the tx count might be incremented in between calls
+	// but only after removing the pk from other apps can we use a proper counter
 
 	// todo remove hardcoded gas values
 	gas := uint64(21000)
 
 	tx := &types.LegacyTx{
-		Nonce:    f.nonce,
+		Nonce:    nonce,
 		GasPrice: big.NewInt(225),
 		Gas:      gas,
 		To:       address,
@@ -138,6 +134,5 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 		return signedTx, err
 	}
 
-	f.nonce = nonce + 1
 	return signedTx, nil
 }
