@@ -60,6 +60,7 @@ func (f *Faucet) Fund(address *common.Address, token string) error {
 	if token == OBXNativeToken {
 		signedTx, err = f.fundNativeToken(address)
 	} else {
+		return fmt.Errorf("token not fundable atm")
 		//signedTx, err = f.fundERC20Token(address, token)
 		// todo implement this when contracts are deployable somewhere
 	}
@@ -108,10 +109,18 @@ func (f *Faucet) validateTx(tx *types.Transaction) error {
 }
 
 func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, error) {
+	// only one funding at the time
+	f.fundMutex.Lock()
+	defer f.fundMutex.Unlock()
+
+	nonce, err := f.client.NonceAt(context.Background(), f.wallet.Address(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch %s nonce: %w", f.wallet.Address(), err)
+	}
+
 	// todo remove hardcoded gas values
 	gas := uint64(21000)
 
-	f.fundMutex.Lock()
 	tx := &types.LegacyTx{
 		Nonce:    f.nonce,
 		GasPrice: big.NewInt(225),
@@ -122,15 +131,13 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 
 	signedTx, err := f.wallet.SignTransaction(tx)
 	if err != nil {
-		f.fundMutex.Unlock()
 		return nil, err
 	}
 
 	if err := f.client.SendTransaction(context.Background(), signedTx); err != nil {
-		f.fundMutex.Unlock()
 		return signedTx, err
 	}
-	f.nonce++
-	f.fundMutex.Unlock()
+
+	f.nonce = nonce + 1
 	return signedTx, nil
 }

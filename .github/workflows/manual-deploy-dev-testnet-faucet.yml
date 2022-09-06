@@ -1,4 +1,4 @@
-# Deploys Faucet on Azure for Testnet
+# Deploys Faucet on Azure for Dev Testnet
 # Builds the Faucet network image, pushes the image to dockerhub and starts the Faucet on azure
 #
 # Faucet is a docker container.
@@ -6,7 +6,7 @@
 # HTTP:       80,
 #
 # Exposes the following addresses: (only accessible internally)
-#  testnet-faucet.uksouth.azurecontainer.io
+#  dev-testnet-faucet.uksouth.azurecontainer.io
 
 name: '[M] Deploy Faucet Testnet'
 
@@ -32,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: obscuronet/faucet_testnet:latest
+          tags: obscuronet/dev_faucet_testnet:latest
           file: ./Dockerfile
 
       - name: 'Login via Azure CLI'
@@ -45,8 +45,8 @@ jobs:
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: testnet-faucet
-          image: obscuronet/faucet_testnet:latest
-          name: testnet-faucet
+          image: obscuronet/dev_faucet_testnet:latest
+          name: dev-testnet-faucet
           location: 'uksouth'
           restart-policy: 'Never'
           environment-variables: PORT=80
@@ -54,9 +54,4 @@ jobs:
           ports: '80'
           cpu: 2
           memory: 2
-
-      - name: 'Trigger Uniswap deployment workflow'
-        run: |
-          curl -XPOST -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" -H "Accept:application/vnd.github" -H "Content-Type:application/json" https://api.github.com/repos/obscuronet/uniswap-testnet-deploy/actions/workflows/manual-deploy-uniswap.yml/dispatches --data '{"ref": "main" }'
-
 
