@@ -44,7 +44,7 @@ jobs:
         uses: 'azure/aci-deploy@v1'
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
-          dns-name-label: testnet-faucet
+          dns-name-label: dev-testnet-faucet
           image: obscuronet/dev_faucet_testnet:latest
           name: dev-testnet-faucet
           location: 'uksouth'
