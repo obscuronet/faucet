@@ -8,7 +8,7 @@
 # Exposes the following addresses: (only accessible internally)
 #  dev-testnet-faucet.uksouth.azurecontainer.io
 
-name: '[M] Deploy Faucet Testnet'
+name: '[M] Deploy Faucet Dev Testnet'
 
 on:
   workflow_dispatch:
