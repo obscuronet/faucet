@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/obscuronet/go-obscuro/go/obsclient"
-	"github.com/obscuronet/go-obscuro/go/rpcclientlib"
+	"github.com/obscuronet/go-obscuro/go/rpc"
 	"github.com/obscuronet/go-obscuro/go/wallet"
 	"sync"
 	"time"
@@ -81,7 +81,7 @@ func (f *Faucet) validateTx(tx *types.Transaction) error {
 	for now := time.Now(); time.Since(now) < _timeout; time.Sleep(time.Second) {
 		receipt, err := f.client.TransactionReceipt(context.Background(), tx.Hash())
 		if err != nil {
-			if errors.Is(err, rpcclientlib.ErrNilResponse) {
+			if errors.Is(err, rpc.ErrNilResponse) {
 				// tx receipt is not available yet
 				continue
 			}
@@ -107,7 +107,7 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 	f.fundMutex.Lock()
 	defer f.fundMutex.Unlock()
 
-	nonce, err := f.client.NonceAt(context.Background(), f.wallet.Address(), nil)
+	nonce, err := f.client.NonceAt(context.Background(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch %s nonce: %w", f.wallet.Address(), err)
 	}
