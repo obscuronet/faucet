@@ -13,7 +13,8 @@ func main() {
 	if cfg.PK == "" {
 		panic("no key loaded")
 	}
-	nodeAddr := fmt.Sprintf("%s:%d", cfg.Host, cfg.WSPort)
+	// we connect to the node via HTTP (config HTTPPort must not be the WSPort for the host)
+	nodeAddr := fmt.Sprintf("http://%s:%d", cfg.Host, cfg.HTTPPort)
 	key, err := crypto.HexToECDSA(cfg.PK[2:])
 	if err != nil {
 		panic(err)

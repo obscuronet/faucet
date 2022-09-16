@@ -16,9 +16,9 @@ const (
 	nodeHostDefault = "http://testnet.obscu.ro"
 	nodeHostUsage   = "The host on which to connect to the Obscuro node. Default: `testnet.obscu.ro`."
 
-	nodeWSPortName    = "nodePort"
-	nodeWSPortDefault = 13000
-	nodeWSPortUsage   = "The port on which to connect to the Obscuro node via RPC over HTTP. Default: 13000 ."
+	nodeHTTPPortName    = "nodePort"
+	nodeHTTPPortDefault = 13000
+	nodeHTTPPortUsage   = "The port on which to connect to the Obscuro node via RPC over HTTP. Default: 13000 ."
 
 	faucetPKName    = "pk"
 	faucetPKDefault = ""
@@ -28,15 +28,15 @@ const (
 func parseCLIArgs() *faucet.Config {
 	faucetPort := flag.Int(faucetPortName, faucetPortDefault, faucetPortUsage)
 	nodeHost := flag.String(nodeHostName, nodeHostDefault, nodeHostUsage)
-	nodeWSPort := flag.Int(nodeWSPortName, nodeWSPortDefault, nodeWSPortUsage)
+	nodeHTTPPort := flag.Int(nodeHTTPPortName, nodeHTTPPortDefault, nodeHTTPPortUsage)
 	faucetPK := flag.String(faucetPKName, faucetPKDefault, faucetPKUsage)
 	flag.Parse()
 
 	return &faucet.Config{
-		Port:    *faucetPort,
-		Host:    *nodeHost,
-		WSPort:  *nodeWSPort,
-		PK:      *faucetPK,
-		ChainID: big.NewInt(777), // TODO make this configurable
+		Port:     *faucetPort,
+		Host:     *nodeHost,
+		HTTPPort: *nodeHTTPPort,
+		PK:       *faucetPK,
+		ChainID:  big.NewInt(777), // TODO make this configurable
 	}
 }
