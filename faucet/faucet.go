@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	_timeout       = 30 * time.Second
+	_timeout       = 60 * time.Second
 	OBXNativeToken = "obx"
 	WrappedOBX     = "wobx"
 	WrappedEth     = "weth"
