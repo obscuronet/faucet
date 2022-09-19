@@ -50,7 +50,7 @@ jobs:
           location: 'uksouth'
           restart-policy: 'Never'
           environment-variables: PORT=80
-          command-line: cmd/faucet --pk ${{ secrets.FAUCET_PK }}
+          command-line: cmd/faucet --pk ${{ secrets.FAUCET_PK }} --jwsSecret ${{ secrets.FAUCET_JWT_SECRET }}
           ports: '80'
           cpu: 2
           memory: 2

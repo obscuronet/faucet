@@ -47,12 +47,12 @@ func NewFaucet(rpcUrl string, chainID *big.Int, pk *ecdsa.PrivateKey) (*Faucet, 
 	}, nil
 }
 
-func (f *Faucet) Fund(address *common.Address, token string) error {
+func (f *Faucet) Fund(address *common.Address, token string, amount int64) error {
 	var err error
 	var signedTx *types.Transaction
 
 	if token == OBXNativeToken {
-		signedTx, err = f.fundNativeToken(address)
+		signedTx, err = f.fundNativeToken(address, amount)
 	} else {
 		return fmt.Errorf("token not fundable atm")
 		//signedTx, err = f.fundERC20Token(address, token)
@@ -102,7 +102,7 @@ func (f *Faucet) validateTx(tx *types.Transaction) error {
 	return fmt.Errorf("unable to fetch tx receipt after %s", _timeout)
 }
 
-func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, error) {
+func (f *Faucet) fundNativeToken(address *common.Address, amount int64) (*types.Transaction, error) {
 	// only one funding at the time
 	f.fundMutex.Lock()
 	defer f.fundMutex.Unlock()
@@ -122,7 +122,7 @@ func (f *Faucet) fundNativeToken(address *common.Address) (*types.Transaction, e
 		GasPrice: big.NewInt(225),
 		Gas:      gas,
 		To:       address,
-		Value:    new(big.Int).Mul(big.NewInt(100_000), big.NewInt(params.Ether)),
+		Value:    new(big.Int).Mul(big.NewInt(amount), big.NewInt(params.Ether)),
 	}
 
 	signedTx, err := f.wallet.SignTransaction(tx)

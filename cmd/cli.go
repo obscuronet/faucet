@@ -23,6 +23,10 @@ const (
 	faucetPKName    = "pk"
 	faucetPKDefault = ""
 	faucetPKUsage   = "The prefunded PK used to fund other accounts. No default, must be set."
+
+	jwtSecretName    = "jwtSecret"
+	jwtSecretDefault = ""
+	jwtSecretUsage   = "The jwt request secret string. No default, must be set."
 )
 
 func parseCLIArgs() *faucet.Config {
@@ -30,13 +34,15 @@ func parseCLIArgs() *faucet.Config {
 	nodeHost := flag.String(nodeHostName, nodeHostDefault, nodeHostUsage)
 	nodeHTTPPort := flag.Int(nodeHTTPPortName, nodeHTTPPortDefault, nodeHTTPPortUsage)
 	faucetPK := flag.String(faucetPKName, faucetPKDefault, faucetPKUsage)
+	jwtSecret := flag.String(jwtSecretName, jwtSecretDefault, jwtSecretUsage)
 	flag.Parse()
 
 	return &faucet.Config{
-		Port:     *faucetPort,
-		Host:     *nodeHost,
-		HTTPPort: *nodeHTTPPort,
-		PK:       *faucetPK,
-		ChainID:  big.NewInt(777), // TODO make this configurable
+		Port:      *faucetPort,
+		Host:      *nodeHost,
+		HTTPPort:  *nodeHTTPPort,
+		PK:        *faucetPK,
+		JWTSecret: *jwtSecret,
+		ChainID:   big.NewInt(777), // TODO make this configurable
 	}
 }
