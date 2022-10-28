@@ -8,22 +8,22 @@ The top level structure of the project is as below;
 
 ```
 ├── .github                    # GitHub workflow actions for deployment 
-├── Dockerfile                 # docker file to build container image
+├── Dockerfile                 # Docker file to build container
 ├── README.md                  # Readme
 ├── cmd                        # Source code for the CLI application
+├── container_build.sh         # Build a local container
+├── container_run.sh           # Run a local container
 ├── faucet                     # Source code for faucet implementation
-├── faucet_build_image.sh      # Build a local image
-├── faucet_run_image.sh        # Run a local image
 ├── go.mod                     # Golang dependency management 
 └── go.sum                     # Goland dependency checksums
 ```
 
-## Building a local image
+## Building a local container
 To build a local container and run the Faucet use the below;
 
 ```bash
-$ ./faucet_build_image.sh 
-$ ./faucet_run_image.sh
+$ ./container_build.sh 
+$ ./container_run.sh 
 ```
 
 By default, when running locally the Faucet will connect to a local testnet started as described in the go-obscuro 
