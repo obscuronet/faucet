@@ -9,7 +9,7 @@ The top level structure of the project is as below;
 ```
 ├── .github                    # GitHub workflow actions for deployment 
 ├── Dockerfile                 # Docker file to build container
-├── README.md                  # Readme
+├── README.md                  # This readme file
 ├── cmd                        # Source code for the CLI application
 ├── container_build.sh         # Build a local container
 ├── container_run.sh           # Run a local container
@@ -32,7 +32,7 @@ to the Obcuro node running within the local testnet on host `testnet-host-1` and
 on port `80` within the container, but maps port `8080` on the host machine to this.
 
 
-## Allocating OBX to and EOA
+## Allocating OBX to an EOA on a local testnet
 Allocating OBX to an externally owned account is done through a POST command to the `/fund/obx` endpoint, where the 
 data in the POST command specifies the address e.g. for the account `0x0d2166b7b3A1522186E809e83d925d7b0B6db084`
 
